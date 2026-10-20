@@ -1,7 +1,7 @@
 # swf2DAW
 
 Flash in your DAW. swf2DAW is a VST3/CLAP instrument that plays `.swf` files (and
-[gb2swf](../gb2swf) Game Boy games) inside the plugin window. The game's sound comes out
+gb2swf Game Boy games) inside the plugin window. The game's sound comes out
 of the plugin as a normal instrument track, MIDI notes and CCs play the game.
 
 Built on [Ruffle](https://ruffle.rs) (`ruffle_core`, pinned commit) and
@@ -58,10 +58,13 @@ button. Steer with C4 / E4, G4 is Start, B4 is the A button.
 | `src/mapping.rs` | MIDI → game mapping, MIDI learn |
 | `src/ui.rs` | the hand-drawn egui skin |
 
-## Licence note
+## Licence
 
-nih-plug's VST3 wrapper is GPLv3, so a distributed VST3 build must be GPLv3. The CLAP
-build alone has no such requirement. Decide before releasing.
+GPL-3.0-or-later, see `LICENSE`. Copyright (c) 2026 Burg Media.
+
+GPL because nih-plug's VST3 wrapper is GPLv3. Ruffle (MIT OR Apache-2.0), nih-plug (ISC)
+and the other dependencies keep their own licences. The demo game in `demo/` has its own
+licence and credits, see `demo/CREDITS.txt`.
 
 ## Roadmap
 

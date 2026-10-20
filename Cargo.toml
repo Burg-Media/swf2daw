@@ -3,6 +3,7 @@ name = "swf2daw"
 version = "0.1.0"
 edition = "2024"
 authors = ["Burg Media"]
+license = "GPL-3.0-or-later"
 description = "Play SWF files (and gb2swf games) inside your DAW"
 publish = false
 
