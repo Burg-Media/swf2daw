@@ -36,11 +36,24 @@ Needs Rust (stable) and Java (Ruffle compiles its playerglobal at build time).
 cargo xtask bundle swf2daw --release
 ```
 
-Output: `target/bundled/swf2DAW.vst3` and `swf2DAW.clap`. GitHub Actions builds the
+Output: `target/bundled/swf2DAW.vst3` and `swf2DAW.clap`. GitHub Actions also builds the
 Windows bundles on every push (artifact `swf2DAW-windows`).
 
-Install on Windows: copy `swf2DAW.vst3` to `C:\Program Files\Common Files\VST3\`
-(and/or `swf2DAW.clap` to `C:\Program Files\Common Files\CLAP\`), then rescan plugins.
+### Windows, step by step
+
+1. Install the **Visual Studio Build Tools** with the "Desktop development with C++"
+   workload (Rust needs the MSVC linker).
+2. Install **Rust** from https://rustup.rs (default options).
+3. Install a **Java JDK** 17 or newer, e.g. `winget install EclipseAdoptium.Temurin.17.JDK`.
+4. Open a new terminal in the repo and run `cargo xtask bundle swf2daw --release`.
+   The first build downloads and compiles Ruffle and takes 10 to 20 minutes and several GB;
+   later builds take a minute or two.
+5. Copy `target\bundled\swf2DAW.vst3` to `C:\Program Files\Common Files\VST3\`
+   (and/or `swf2DAW.clap` to `C:\Program Files\Common Files\CLAP\`), then rescan
+   plugins in your DAW. In FL Studio: Options > Manage plugins > Find more plugins.
+
+FL Studio keeps the plugin DLL locked while a project uses it: close the project (or FL)
+before copying a new build over the old one.
 
 ## Test game
 
