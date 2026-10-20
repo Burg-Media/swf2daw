@@ -1,0 +1,26 @@
+name: build
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Ruffle compiles its playerglobal with Java during the build
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Bundle VST3 + CLAP
+        run: cargo xtask bundle swf2daw --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: swf2DAW-windows
+          path: |
+            target/bundled/swf2DAW.vst3
+            target/bundled/swf2DAW.clap

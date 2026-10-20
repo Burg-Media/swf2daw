@@ -1,0 +1,30 @@
+[package]
+name = "swf2daw"
+version = "0.1.0"
+edition = "2024"
+authors = ["Burg Media"]
+description = "Play SWF files (and gb2swf games) inside your DAW"
+publish = false
+
+[workspace]
+members = ["xtask"]
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[dependencies]
+# Pinned: ruffle_core has no stable API
+ruffle_core = { git = "https://github.com/ruffle-rs/ruffle", rev = "be342ba07b48f3045a16659bdda5bd654ba064fe", features = ["audio", "mp3", "aac", "nellymoser", "default_compatibility_rules", "default_font"] }
+ruffle_render_wgpu = { git = "https://github.com/ruffle-rs/ruffle", rev = "be342ba07b48f3045a16659bdda5bd654ba064fe" }
+nih_plug = { git = "https://github.com/robbert-vdh/nih-plug", rev = "de421011f41a6d10fc8c7a6084e4f4dee0143683" }
+nih_plug_egui = { git = "https://github.com/robbert-vdh/nih-plug", rev = "de421011f41a6d10fc8c7a6084e4f4dee0143683" }
+crossbeam-channel = "0.5"
+rtrb = "0.3"
+futures = "0.3"
+rfd = "0.15"
+serde = { version = "1", features = ["derive"] }
+base64 = "0.22"
+
+[profile.release]
+lto = "thin"
+strip = "symbols"
