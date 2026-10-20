@@ -142,6 +142,11 @@ impl Mapping {
         self.binds.insert(src, target);
     }
 
+    /// Unbinds everything bound to `target`.
+    pub fn clear(&mut self, target: Target) {
+        self.binds.retain(|_, t| *t != target);
+    }
+
     /// First source bound to a target, for the label on the mapper.
     pub fn source_of(&self, target: Target) -> Option<Source> {
         self.binds.iter().find(|(_, t)| **t == target).map(|(s, _)| *s)

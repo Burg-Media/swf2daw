@@ -2,7 +2,7 @@
 //! threads, and it must never run on the DAW's audio thread. The plugin, the editor and
 //! this thread talk through `Shared`, a command channel and two lock-free ring buffers.
 
-use crate::audio::PluginAudioBackend;
+use crate::audio::{FRAME, MUSIC_BUS, PluginAudioBackend};
 use crate::mapping::{Mapping, Source, Target};
 use base64::Engine as _;
 use ruffle_core::backend::audio::AudioMixerProxy;
@@ -41,6 +41,8 @@ pub enum Cmd {
     Button(Target, bool),
     /// Mouse on the screen, in 0..1 of the stage
     Mouse(f32, f32),
+    /// Mouse X or Y alone (the mapper's axis buttons), 0..1
+    MouseAxis(Target, f32),
     MouseButton(bool),
 }
 
@@ -81,11 +83,15 @@ pub struct Shared {
     pub transport_playing: AtomicBool,
     pub sample_rate: AtomicU32,
     pub follow_transport: AtomicBool,
-    /// Ruffle's mixer, picked up by the audio thread
-    pub mixer: Mutex<Option<AudioMixerProxy>>,
+    /// Ruffle's mixers (music, sfx), picked up by the audio thread
+    pub mixer: Mutex<Option<[AudioMixerProxy; 2]>>,
     /// Last mono output samples for the spectrum analyzer
     pub scope: Mutex<Vec<f32>>,
     pub scope_serial: AtomicU64,
+    /// Peak per bus since the editor last looked (f32 bits), for the strip meters
+    pub meters: [AtomicU32; crate::audio::BUSES],
+    /// Output peak, left and right, since the editor last looked (f32 bits), for the VU meters
+    pub vu: [AtomicU32; 2],
     pub shutdown: AtomicBool,
 }
 
@@ -118,21 +124,39 @@ struct PluginExternalInterface {
     gb_pad: Rc<Cell<bool>>,
 }
 
+impl PluginExternalInterface {
+    /// Writes `samples` (`width` values per frame) into the stream at bus channel `at`,
+    /// the other buses silent. Whole frames only; drops what doesn't fit.
+    fn push(&self, samples: &[Value], width: usize, at: usize) {
+        let mut tx = self.stream.borrow_mut();
+        let frames = (samples.len() / width).min(tx.slots() / FRAME);
+        if let Ok(chunk) = tx.write_chunk_uninit(frames * FRAME) {
+            chunk.fill_from_iter((0..frames * FRAME).map(|i| {
+                let (f, c) = (i / FRAME, i % FRAME);
+                match c.checked_sub(at).filter(|&k| k < width).map(|k| &samples[f * width + k]) {
+                    Some(Value::Number(x)) => *x as f32,
+                    _ => 0.0,
+                }
+            }));
+        }
+    }
+}
+
 impl ExternalInterfaceProvider for PluginExternalInterface {
     fn call_method(&self, _context: &mut UpdateContext<'_>, name: &str, args: &[Value]) -> Value {
         match name {
-            "gb2swfAudioReady" => Value::Bool(true),
+            "gb2swfAudioReady" | "gb2swfStemsReady" => Value::Bool(true),
+            // The plain mix goes to the Music bus
             "gb2swfAudio" => {
                 if let [Value::List(samples)] = args {
-                    let mut tx = self.stream.borrow_mut();
-                    // Whole stereo frames only; drop what doesn't fit
-                    let n = samples.len().min(tx.slots()) & !1;
-                    if let Ok(chunk) = tx.write_chunk_uninit(n) {
-                        chunk.fill_from_iter(samples.iter().map(|v| match v {
-                            Value::Number(x) => *x as f32,
-                            _ => 0.0,
-                        }));
-                    }
+                    self.push(samples, 2, MUSIC_BUS * 2);
+                }
+                Value::Undefined
+            }
+            // Pulse 1, Pulse 2, Wave, Noise to buses 0..3
+            "gb2swfAudioStems" => {
+                if let [Value::List(samples)] = args {
+                    self.push(samples, 8, 0);
                 }
                 Value::Undefined
             }
@@ -302,6 +326,8 @@ impl Engine {
             }
             Cmd::Button(t, down) => self.press(t, down),
             Cmd::Mouse(x, y) => self.mouse_to(x, y),
+            Cmd::MouseAxis(Target::MouseX, x) => self.mouse_to(x, self.mouse.1),
+            Cmd::MouseAxis(_, y) => self.mouse_to(self.mouse.0, y),
             Cmd::MouseButton(down) => self.click(down),
         }
     }
@@ -354,7 +380,7 @@ impl Engine {
         let target = TextureTarget::new(&gpu.device, (width, height)).map_err(|e| e.to_string())?;
         let renderer = WgpuRenderBackend::new(gpu, target).map_err(|e| e.to_string())?;
         let audio = PluginAudioBackend::new(self.sample_rate);
-        *self.shared.mixer.lock().unwrap() = Some(audio.proxy());
+        *self.shared.mixer.lock().unwrap() = Some(audio.proxies());
 
         let gb_pad = Rc::new(Cell::new(false));
         let player = PlayerBuilder::new()

@@ -21,6 +21,7 @@ nih_plug = { git = "https://github.com/robbert-vdh/nih-plug", rev = "de421011f41
 nih_plug_egui = { git = "https://github.com/robbert-vdh/nih-plug", rev = "de421011f41a6d10fc8c7a6084e4f4dee0143683" }
 crossbeam-channel = "0.5"
 rtrb = "0.3"
+slotmap = "1"
 futures = "0.3"
 rfd = "0.15"
 serde = { version = "1", features = ["derive"] }

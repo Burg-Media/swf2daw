@@ -7,7 +7,7 @@ of the plugin as a normal instrument track, MIDI notes and CCs play the game.
 Built on [Ruffle](https://ruffle.rs) (`ruffle_core`, pinned commit) and
 [nih-plug](https://github.com/robbert-vdh/nih-plug).
 
-## Features (v0.1)
+## Features
 
 - Loads any SWF (eject button), remembers it in the DAW project
 - Game sound straight into the DAW at the host sample rate, 32-bit float, so recording,
@@ -23,7 +23,34 @@ Built on [Ruffle](https://ruffle.rs) (`ruffle_core`, pinned commit) and
 - Mouse on the screen and keyboard in the editor work too
 - Game saves (SharedObjects) are stored in the DAW project
 - "Sync to DAW": the game only runs while the transport plays
-- Retro 2010 media player skin: LCD ticker, LED spectrum analyzer, chrome buttons
+- Hand-drawn 1990s rack unit skin: CRT screen, VFD ticker and spectrum, needle VU meters, hardware keys
+- Every channel on its own output: Pulse 1, Pulse 2, Wave, Noise (gb2swf games built
+  with stems support), Music and SFX
+  - Flash games: every sound is sorted when it starts. Streams, looping sounds and
+    sounds of 8 seconds or longer go to Music, all other sounds to SFX
+  - older gb2swf games (no stems) play their whole mix on Music
+  - mixer tab: per channel low / mid / high EQ, level, pan, mute, solo and a meter
+  - EQ + FX tab, on the main output: 10-band EQ with presets, Mega Bass, a filter pad
+    (cutoff / resonance) and Bitcrush, Tape Wobble, Ring Mod, Trance Gate and Echo
+    (both synced to the DAW tempo) and Space
+  - every knob is a plugin parameter, so the DAW can automate it
+
+### Recording the channels on separate tracks
+
+The plugin has a main output (the mix, through the EQ and effects) and six extra
+stereo outputs, one per channel, after the channel strip and before the EQ and effects.
+
+In FL Studio: open the plugin wrapper settings (the cog at the top left of the plugin
+window) > Processing, and give every output in the Outputs list its own mixer track.
+Record the channel tracks for separate stems, or the main output for the
+finished mix; don't send both to the master or you hear everything twice.
+
+Game Boy games give a sound effect a music channel for a moment, so an effect sounds
+on the channel it borrows (often Noise or Pulse 1). The split is per channel, not
+music vs. effects.
+
+The four Game Boy channels only come out separately for games converted with a gb2swf
+that supports stems; older SWFs play their whole mix on the Music channel.
 
 Recording a playthrough: arm the instrument track and record. The MIDI you play is
 recorded too, so the take can be played back into the game later.
@@ -67,7 +94,9 @@ button. Steer with C4 / E4, G4 is Start, B4 is the A button.
 |---|---|
 | `src/lib.rs` | plugin, parameters, persisted state, MIDI in, audio out |
 | `src/engine.rs` | Ruffle player on its own thread, offscreen wgpu render, ExternalInterface, input |
-| `src/audio.rs` | Ruffle mixer backend, gb2swf stream resampler |
+| `src/audio.rs` | Ruffle audio backend (music and SFX mixers), gb2swf stream resampler |
+| `src/dsp.rs` | channel strip EQ, master EQ, filter and effects |
+| `src/params.rs` | parameters of the channel strips and the master rack |
 | `src/mapping.rs` | MIDI → game mapping, MIDI learn |
 | `src/ui.rs` | the hand-drawn egui skin |
 
@@ -81,7 +110,6 @@ licence and credits, see `demo/CREDITS.txt`.
 
 ## Roadmap
 
-- Multi-out stems (gb2swf: pulse 1, pulse 2, wave, noise on separate outputs)
 - Deterministic replay + faster-than-realtime offline bounce
 - Embed the SWF in the project instead of a path
 - Presets per game, MIDI out, BPM-synced frame rate
