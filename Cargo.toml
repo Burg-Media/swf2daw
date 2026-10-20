@@ -1,6 +1,6 @@
 [package]
 name = "swf2daw"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2024"
 authors = ["Burg Media"]
 license = "GPL-3.0-or-later"
