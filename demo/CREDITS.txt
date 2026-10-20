@@ -1,0 +1,4 @@
+Tobu Tobu Girl Deluxe (c) 2017 Tangram Games (sound by potato-tan, as credited in the game). Code: MIT License. Images, text, sound and music: CC BY 4.0. Original game: tangramgames.itch.io, source: github.com/SimonLarsen/tobutobugirl-dx. Unchanged ROM, converted to SWF with gb2swf. Not affiliated with Nintendo.
+
+The page and player: gb2swf (MIT License, Copyright (c) 2026 Burg Media) and Ruffle (MIT OR Apache-2.0,
+Copyright (c) 2018 Ruffle LLC and Ruffle contributors), see ruffle/LICENSE_MIT and ruffle/LICENSE_APACHE.

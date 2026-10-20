@@ -42,6 +42,12 @@ Windows bundles on every push (artifact `swf2DAW-windows`).
 Install on Windows: copy `swf2DAW.vst3` to `C:\Program Files\Common Files\VST3\`
 (and/or `swf2DAW.clap` to `C:\Program Files\Common Files\CLAP\`), then rescan plugins.
 
+## Test game
+
+`demo/tobu-tobu-girl-deluxe.swf`: Tobu Tobu Girl Deluxe by Tangram Games converted with
+gb2swf (code MIT, assets CC BY 4.0, see `demo/CREDITS.txt`). Load it with the eject
+button: B4 jumps... well, the girl jumps on her own, steer with C4 / E4.
+
 ## Architecture
 
 | File | What |
