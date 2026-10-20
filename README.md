@@ -46,7 +46,7 @@ Install on Windows: copy `swf2DAW.vst3` to `C:\Program Files\Common Files\VST3\`
 
 `demo/tobu-tobu-girl-deluxe.swf`: Tobu Tobu Girl Deluxe by Tangram Games converted with
 gb2swf (code MIT, assets CC BY 4.0, see `demo/CREDITS.txt`). Load it with the eject
-button: B4 jumps... well, the girl jumps on her own, steer with C4 / E4.
+button. Steer with C4 / E4, G4 is Start, B4 is the A button.
 
 ## Architecture
 
