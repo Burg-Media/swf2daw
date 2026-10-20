@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>swf2DAW plugin window</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#020203}
+a{color:#8fc8ff}a:hover{color:#c4e1ff}
+.sw{font-family:Tahoma,Verdana,'Segoe UI',sans-serif}
+.sw button{font:inherit;color:inherit;cursor:pointer}
+.sw input[type=range]{cursor:pointer}
+@keyframes sw-ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@keyframes sw-blink{0%,49%{opacity:1}50%,100%{opacity:.2}}
+@keyframes sw-pulse{0%,100%{opacity:.45}50%{opacity:1}}
+@keyframes sw-stars{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.sw-chrome:hover{filter:brightness(1.18)}
+.sw-mod:hover{filter:brightness(1.12)}
+</style>
+</helmet>
+
+<div class="sw" style="width: 1120px; height: 720px; position: relative; background: #020203; overflow: hidden; color: #fff;">
+
+  <!-- shell -->
+  <div style="position: absolute; inset: 4px; border-radius: 24px; background: linear-gradient(180deg, #3b4048 0%, #24272d 48%, #17191d 52%, #0e0f12 100%); box-shadow: inset 0 0 0 1px #5d6470, inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.6); overflow: hidden;">
+    <div style="position: absolute; inset: 0; background: repeating-linear-gradient(180deg, rgba(255,255,255,.025) 0 1px, transparent 1px 3px);"></div>
+    <div style="position: absolute; left: 0; right: 0; top: 0; height: 52px; background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.02));"></div>
+  </div>
+
+  <!-- screws -->
+  <sc-for list="{{screws}}" as="s" hint-placeholder-count="4">
+    <span aria-hidden="true" style="position: absolute; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #e8e8e8, #6a6a6a 60%, #2a2a2a); box-shadow: 0 1px 1px rgba(0,0,0,.8), inset 0 0 0 1px rgba(0,0,0,.4); {{s.pos}}">
+      <span style="position: absolute; left: 2px; right: 2px; top: 5px; height: 2px; background: #333; transform: rotate({{s.rot}});"></span>
+    </span>
+  </sc-for>
+
+  <!-- title bar -->
+  <div style="position: absolute; left: 34px; top: 12px; display: flex; align-items: baseline; gap: 10px;">
+    <span style="font-family: Verdana, Tahoma, sans-serif; font-weight: bold; font-style: italic; font-size: 26px; letter-spacing: -0.5px; color: #e9edf2; text-shadow: 0 1px 0 #fff, 0 -1px 0 #000, 0 2px 3px rgba(0,0,0,.7);">swf2DAW</span>
+    <span style="font-size: 11px; color: #9aa1ad;">Burg Media</span>
+  </div>
+  <div style="position: absolute; right: 36px; top: 20px; font-size: 11px; color: #8d94a0;">v0.2 · Ruffle</div>
+
+  <!-- speakers -->
+  <sc-for list="{{speakers}}" as="sp" hint-placeholder-count="2">
+    <div aria-hidden="true" style="position: absolute; top: 66px; width: 70px; height: 492px; border-radius: 14px; background: radial-gradient(circle, #050505 1.6px, transparent 2px) 0 0 / 7px 7px, linear-gradient(180deg, #23262d, #121418); box-shadow: inset 0 0 0 1px #000, inset 0 2px 6px rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.1); {{sp.pos}}">
+      <div style="position: absolute; left: 11px; top: 26px; width: 48px; height: 48px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #555, #111 70%); box-shadow: 0 0 0 3px #0a0a0a, 0 0 0 4px #555;">
+        <div style="position: absolute; inset: 14px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ddd, #555 60%, #222); {{sp.tweeter}}"></div>
+      </div>
+      <div style="position: absolute; left: 4px; top: 126px; width: 62px; height: 62px; border-radius: 50%; background: radial-gradient(circle, #1a1a1a 0 40%, #333 41%, #0c0c0c 70%, #2e2e2e 71%, #0a0a0a 100%); box-shadow: 0 0 0 3px #080808, 0 0 0 4px #4a4a4a; {{sp.woof}}">
+        <div style="position: absolute; inset: 19px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #777, #222 70%); "></div>
+      </div>
+      <div style="position: absolute; left: 4px; top: 300px; width: 62px; height: 62px; border-radius: 50%; background: radial-gradient(circle, #1a1a1a 0 40%, #333 41%, #0c0c0c 70%, #2e2e2e 71%, #0a0a0a 100%); box-shadow: 0 0 0 3px #080808, 0 0 0 4px #4a4a4a; {{sp.woof}}">
+        <div style="position: absolute; inset: 19px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #777, #222 70%); "></div>
+      </div>
+      <div style="position: absolute; left: 0; right: 0; bottom: 8px; text-align: center; font-size: 8px; font-weight: 800; letter-spacing: 1px; color: #6a7080;">{{sp.name}}</div>
+    </div>
+  </sc-for>
+
+  <!-- screen -->
+  <div style="position: absolute; left: 96px; top: 66px; width: 432px; height: 318px; border-radius: 14px; background: linear-gradient(180deg, #161616, #3e3e3e); box-shadow: inset 0 0 0 1px #5e5e5e, 0 2px 0 rgba(255,255,255,.08);">
+    <div style="position: absolute; inset: 12px; border-radius: 10px; background: #000; overflow: hidden; box-shadow: inset 0 0 24px rgba(0,0,0,.9);">
+      <sc-if value="{{playing}}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; left: 30px; top: 0; width: 348px; height: 294px; background: #e0f8d0; overflow: hidden;" role="img" aria-label="Game Boy game running in the plugin">
+          <div style="position: absolute; left: 0; right: 0; top: 0; height: 110px; background: repeating-linear-gradient(90deg, #e0f8d0 0 24px, #d2efc0 24px 48px);"></div>
+          <div style="position: absolute; left: 30px; top: 40px; width: 70px; height: 22px; border-radius: 11px; background: #88c070;"></div>
+          <div style="position: absolute; left: 210px; top: 26px; width: 90px; height: 22px; border-radius: 11px; background: #88c070;"></div>
+          <div style="position: absolute; left: 20px; top: 190px; width: 110px; height: 16px; background: #346856; box-shadow: inset 0 4px 0 #88c070;"></div>
+          <div style="position: absolute; left: 206px; top: 138px; width: 110px; height: 16px; background: #346856; box-shadow: inset 0 4px 0 #88c070;"></div>
+          <div style="position: absolute; left: 110px; top: 86px; width: 80px; height: 16px; background: #346856; box-shadow: inset 0 4px 0 #88c070;"></div>
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 38px; background: #081820; box-shadow: inset 0 6px 0 #346856;"></div>
+          <div style="position: absolute; left: 156px; top: 212px; width: 28px; height: 34px; {{game.hop}}">
+            <div style="position: absolute; left: 5px; top: 0; width: 18px; height: 15px; border-radius: 4px; background: #081820;"></div>
+            <div style="position: absolute; left: 2px; top: 14px; width: 24px; height: 13px; border-radius: 3px; background: #346856;"></div>
+            <div style="position: absolute; left: 5px; top: 26px; width: 6px; height: 8px; background: #081820;"></div>
+            <div style="position: absolute; left: 17px; top: 26px; width: 6px; height: 8px; background: #081820;"></div>
+          </div>
+          <div style="position: absolute; left: 12px; top: 8px; font-family: VT323, monospace; font-size: 24px; color: #081820;">SCORE {{game.score}}</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{noDisc}}" hint-placeholder-val="{{ false }}">
+        <div style="position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 45%, #0c1a26 0%, #000 70%);">
+          <div style="position: absolute; left: 0; top: 0; width: 200%; height: 100%; animation: sw-stars 30s linear infinite; background-image: radial-gradient(1.2px 1.2px at 20px 30px, #fff, transparent), radial-gradient(1px 1px at 90px 120px, rgba(255,255,255,.7), transparent), radial-gradient(1.6px 1.6px at 170px 60px, #fff, transparent), radial-gradient(1px 1px at 250px 200px, rgba(255,255,255,.6), transparent), radial-gradient(1.4px 1.4px at 330px 260px, #fff, transparent), radial-gradient(1px 1px at 380px 90px, rgba(255,255,255,.7), transparent); background-size: 408px 294px;"></div>
+          <div style="position: absolute; left: 0; right: 0; top: 112px; text-align: center; font-family: VT323, monospace; font-size: 44px; letter-spacing: 4px; color: #d8dde5; animation: sw-pulse 2.2s ease-in-out infinite;">INSERT SWF</div>
+          <div style="position: absolute; left: 0; right: 0; top: 166px; text-align: center; font-family: VT323, monospace; font-size: 20px; color: #9aa1ad;">press EJECT to load a game</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{crt}}" hint-placeholder-val="{{ true }}">
+        <div style="position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(0,0,0,.22) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(255,0,0,.04) 0 1px, rgba(0,255,0,.04) 1px 2px, rgba(0,0,255,.04) 2px 3px);"></div>
+        <div style="position: absolute; inset: 0; pointer-events: none; border-radius: 10px; box-shadow: inset 0 0 60px rgba(0,0,0,.85), inset 0 0 12px rgba(0,0,0,.9);"></div>
+      </sc-if>
+      <div style="position: absolute; inset: 0; pointer-events: none; background: linear-gradient(125deg, rgba(255,255,255,.12) 0%, rgba(255,255,255,.03) 30%, transparent 31%);"></div>
+    </div>
+  </div>
+
+  <!-- oscilloscope -->
+  <div style="position: absolute; left: 96px; top: 392px; width: 432px; height: 58px; border-radius: 10px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.1);">
+    <div style="position: absolute; inset: 6px; border-radius: 6px; overflow: hidden; background: radial-gradient(ellipse at 50% 50%, #062014, #010805); box-shadow: inset 0 0 14px rgba(0,0,0,.9);">
+      <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(107,255,122,.08) 1px, transparent 1px) 0 0 / 30px 100%, linear-gradient(0deg, rgba(107,255,122,.08) 1px, transparent 1px) 0 0 / 100% 11.5px;"></div>
+      <svg width="420" height="46" viewBox="0 0 420 46" role="img" aria-label="Oscilloscope of the output" style="position: absolute; inset: 0; filter: drop-shadow(0 0 3px #6bff7a) drop-shadow(0 0 6px rgba(107,255,122,.6));">
+        <polyline points="{{scope}}" fill="none" stroke="#c8ffcf" stroke-width="1.6" stroke-linejoin="round"></polyline>
+      </svg>
+      <span style="position: absolute; left: 6px; top: 1px; font-family: VT323, monospace; font-size: 15px; color: rgba(107,255,122,.75);">SCOPE</span>
+    </div>
+  </div>
+
+  <!-- LCD -->
+  <div style="position: absolute; left: 540px; top: 66px; width: 324px; height: 104px; border-radius: 10px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.12);">
+    <div style="position: absolute; inset: 6px; border-radius: 6px; overflow: hidden; background: linear-gradient(180deg, #123120, #041007); font-family: VT323, monospace; color: #b8ff6a;">
+      <div style="position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px), repeating-linear-gradient(0deg, rgba(0,0,0,.1) 0 1px, transparent 1px 3px);"></div>
+      <div style="position: absolute; left: 0; top: 6px; width: 100%; height: 18px; overflow: hidden;">
+        <div style="display: flex; width: max-content; animation: sw-ticker 16s linear infinite; font-size: 18px; white-space: nowrap; text-shadow: 0 0 5px rgba(184,255,106,.7);">
+          <span style="padding-right: 30px;">{{lcd.ticker}}</span><span style="padding-right: 30px;">{{lcd.ticker}}</span>
+        </div>
+      </div>
+      <div style="position: absolute; left: 10px; top: 26px; font-family: VT323, monospace; font-size: 50px; line-height: 50px; color: rgba(46,85,34,.55);" aria-hidden="true">88:88</div>
+      <div style="position: absolute; left: 10px; top: 26px; font-family: VT323, monospace; font-size: 50px; line-height: 50px; text-shadow: 0 0 8px rgba(184,255,106,.75);">{{lcd.time}}</div>
+      <div style="position: absolute; left: 126px; top: 28px; display: flex; flex-direction: column; gap: 0; font-size: 16px; line-height: 15px;">
+        <span>48 kHz</span>
+        <span>{{lcd.fps}}</span>
+        <span>{{lcd.bpm}}</span>
+      </div>
+      <div style="position: absolute; right: 8px; top: 28px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 8px; row-gap: 3px;">
+        <sc-for list="{{chans}}" as="c" hint-placeholder-count="4">
+          <div style="display: flex; align-items: center; gap: 4px; font-size: 15px; line-height: 13px;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; {{c.led}}"></span>
+            <span style="width: 18px;">{{c.name}}</span>
+            <span style="width: 26px; height: 5px; background: rgba(46,85,34,.6); position: relative;"><span style="position: absolute; left: 0; top: 0; bottom: 0; background: #b8ff6a; {{c.bar}}"></span></span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="position: absolute; left: 10px; bottom: 2px; right: 8px; display: flex; justify-content: space-between; font-size: 15px;">
+        <span>STEREO</span>
+        <span>{{lcd.midi}}</span>
+        <span style="animation: sw-blink 1s steps(1) infinite;">{{lcd.mode}}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- spectrum -->
+  <div style="position: absolute; left: 540px; top: 178px; width: 324px; height: 124px; border-radius: 10px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.12);" role="img" aria-label="LED spectrum analyzer">
+    <div style="position: absolute; left: 8px; right: 8px; top: 8px; height: 82px; border-radius: 4px 4px 0 0; background: #030405; display: flex; gap: 2px; padding: 0 3px; overflow: hidden;">
+      <sc-for list="{{bars}}" as="bar" hint-placeholder-count="32">
+        <div style="position: relative; flex: 1 1 0; height: 100%; background: linear-gradient(0deg, rgba(93,240,106,.08) 0 55%, rgba(255,216,59,.08) 55% 80%, rgba(255,59,90,.1) 80%);">
+          <div style="position: absolute; left: 0; right: 0; bottom: 0; background: linear-gradient(0deg, #3fd34c 0 46px, #f2d230 46px 66px, #f0453a 66px 82px); background-size: 100% 82px; background-position: bottom; {{bar.h}}"></div>
+          <div style="position: absolute; left: 0; right: 0; height: 2px; background: #d8dde5; {{bar.pk}}"></div>
+        </div>
+      </sc-for>
+      <div style="position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, transparent 0 3px, #030405 3px 4px);"></div>
+    </div>
+    <div style="position: absolute; left: 8px; right: 8px; top: 90px; height: 26px; border-radius: 0 0 4px 4px; background: #030405; display: flex; gap: 2px; padding: 0 3px; overflow: hidden; -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,.5), transparent); mask-image: linear-gradient(180deg, rgba(0,0,0,.5), transparent);" aria-hidden="true">
+      <sc-for list="{{bars}}" as="bar" hint-placeholder-count="32">
+        <div style="position: relative; flex: 1 1 0; height: 100%;">
+          <div style="position: absolute; left: 0; right: 0; top: 0; background: #3fd34c; {{bar.r}}"></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- VU meters -->
+  <div style="position: absolute; left: 540px; top: 310px; width: 324px; height: 78px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px;">
+    <sc-for list="{{vu}}" as="m" hint-placeholder-count="2">
+      <div style="position: relative; height: 78px; border-radius: 8px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.12);" role="img" aria-label="{{m.aria}}">
+        <div style="position: absolute; inset: 5px; border-radius: 5px; overflow: hidden; background: radial-gradient(ellipse 90% 120% at 50% 110%, #ffe7a8, #f5b84a 60%, #b8741c); box-shadow: inset 0 0 10px rgba(80,30,0,.6);">
+          <svg width="148" height="68" viewBox="0 0 148 68" aria-hidden="true" style="position: absolute; left: 0; top: 0;">
+            <path d="M18 52 A60 60 0 0 1 108 20" fill="none" stroke="#3a2205" stroke-width="1.5"></path>
+            <path d="M108 20 A60 60 0 0 1 130 52" fill="none" stroke="#c4161c" stroke-width="3"></path>
+            <g stroke="#3a2205" stroke-width="1.2">
+              <line x1="22" y1="47" x2="26" y2="50"></line><line x1="38" y1="31" x2="41" y2="35"></line><line x1="56" y1="21" x2="58" y2="26"></line><line x1="74" y1="18" x2="74" y2="23"></line><line x1="92" y1="21" x2="90" y2="26"></line><line x1="110" y1="31" x2="107" y2="35"></line><line x1="126" y1="47" x2="122" y2="50"></line>
+            </g>
+            <text x="20" y="40" font-size="7" fill="#3a2205" font-family="Tahoma">-20</text>
+            <text x="68" y="14" font-size="7" fill="#3a2205" font-family="Tahoma">-3</text>
+            <text x="118" y="40" font-size="7" fill="#c4161c" font-family="Tahoma">+3</text>
+          </svg>
+          <span style="position: absolute; left: 8px; bottom: 4px; font-family: Tahoma, Verdana, sans-serif; font-weight: 800; font-size: 11px; color: #3a2205;">VU</span>
+          <span style="position: absolute; right: 8px; bottom: 4px; font-weight: 800; font-size: 11px; color: #3a2205;">{{m.name}}</span>
+          <div style="position: absolute; left: 73px; bottom: -14px; width: 2px; height: 72px; background: linear-gradient(0deg, #111, #c4161c); transform-origin: 50% 100%; box-shadow: 1px 0 2px rgba(0,0,0,.4); {{m.needle}}"></div>
+          <div style="position: absolute; left: 66px; bottom: -10px; width: 16px; height: 16px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #666, #111);"></div>
+          <span style="position: absolute; right: 8px; top: 6px; width: 8px; height: 8px; border-radius: 50%; {{m.clip}}"></span>
+          <div style="position: absolute; inset: 0; background: linear-gradient(160deg, rgba(255,255,255,.35) 0%, rgba(255,255,255,.05) 35%, transparent 36%);"></div>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- transport -->
+  <div style="position: absolute; left: 540px; top: 396px; width: 324px; height: 54px; display: flex; justify-content: space-between; align-items: flex-start;">
+    <sc-for list="{{transport}}" as="b" hint-placeholder-count="4">
+      <div style="display: flex; flex-direction: column; align-items: center; gap: 3px; width: 70px;">
+        <button class="sw-chrome" aria-label="{{b.aria}}" onClick="{{b.click}}" style="width: 44px; height: 44px; border-radius: 50%; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: radial-gradient(ellipse 70% 42% at 50% 22%, rgba(255,255,255,.48), rgba(255,255,255,0) 100%), linear-gradient(180deg, #737373, #1a1a1a); {{b.ring}}">
+          <sc-if value="{{b.isEject}}" hint-placeholder-val="{{ false }}"><svg width="20" height="18" viewBox="0 0 22 20" aria-hidden="true"><path d="M11 1 L21 12 H1 Z" fill="currentColor"></path><rect x="1" y="15" width="20" height="4" rx="1" fill="currentColor"></rect></svg></sc-if>
+          <sc-if value="{{b.isPlay}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M4 1 L17 9 L4 17 Z" fill="currentColor"></path></svg></sc-if>
+          <sc-if value="{{b.isPause}}" hint-placeholder-val="{{ false }}"><svg width="16" height="16" viewBox="0 0 18 18" aria-hidden="true"><rect x="2" y="1" width="5" height="16" rx="1" fill="currentColor"></rect><rect x="11" y="1" width="5" height="16" rx="1" fill="currentColor"></rect></svg></sc-if>
+          <sc-if value="{{b.isStop}}" hint-placeholder-val="{{ false }}"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><rect x="1" y="1" width="14" height="14" rx="2" fill="currentColor"></rect></svg></sc-if>
+          <sc-if value="{{b.isReset}}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 22 22" aria-hidden="true"><path d="M17 6.5 A8 8 0 1 0 19 12" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"></path><path d="M13 2 L19 6.5 L12.5 9 Z" fill="currentColor"></path></svg></sc-if>
+        </button>
+        <span style="font-size: 9px; font-weight: 700; letter-spacing: 1px; color: #b5bac4;">{{b.label}}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <!-- right rack: XY pad, volume, toggles -->
+  <div style="position: absolute; left: 876px; top: 66px; width: 154px; height: 384px; border-radius: 10px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.12);">
+    <div style="position: absolute; left: 10px; top: 7px; font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #8fc8ff;">FX PAD</div>
+    <div style="position: absolute; right: 10px; top: 8px; font-family: VT323, monospace; font-size: 9px; color: #c9ced7;">{{xy.readout}}</div>
+    <button aria-label="FX pad: drag to sweep the filter (left-right) and resonance (up-down)" onPointerDown="{{xy.down}}" onPointerMove="{{xy.move}}" onPointerUp="{{xy.up}}" onPointerLeave="{{xy.up}}" style="position: absolute; left: 8px; top: 24px; width: 138px; height: 138px; border: 0; padding: 0; border-radius: 6px; overflow: hidden; touch-action: none; background: linear-gradient(180deg, #10161e, #06080b); box-shadow: inset 0 0 0 1px #2a3440, inset 0 2px 6px rgba(0,0,0,.8);">
+      <span style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(143,200,255,.1) 1px, transparent 1px) 0 0 / 17.25px 100%, linear-gradient(0deg, rgba(143,200,255,.1) 1px, transparent 1px) 0 0 / 100% 17.25px;"></span>
+      <sc-for list="{{xy.trail}}" as="tr" hint-placeholder-count="0">
+        <span style="position: absolute; border-radius: 50%; background: #8fc8ff; pointer-events: none; {{tr}}"></span>
+      </sc-for>
+      <span style="position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, #fff 0 30%, #8fc8ff 50%, rgba(143,200,255,0) 72%); {{xy.dot}}"></span>
+      <span style="position: absolute; left: 4px; bottom: 3px; font-size: 8px; color: rgba(170,200,230,.75); pointer-events: none;">CUTOFF →</span>
+      <span style="position: absolute; right: 3px; top: 4px; font-size: 8px; color: rgba(170,200,230,.75); pointer-events: none; writing-mode: vertical-rl;">RESO →</span>
+    </button>
+    <!-- volume knob -->
+    <div style="position: absolute; left: 0; right: 0; top: 170px; display: flex; flex-direction: column; align-items: center; gap: 2px;">
+      <div style="position: relative; width: 74px; height: 74px;">
+        <div style="position: absolute; inset: 0; border-radius: 50%; {{vol.ring}} -webkit-mask: radial-gradient(circle, transparent 0 30px, #000 31px 36px, transparent 37px); mask: radial-gradient(circle, transparent 0 30px, #000 31px 36px, transparent 37px);"></div>
+        <div style="position: absolute; inset: 10px; border-radius: 50%; background: radial-gradient(ellipse 60% 40% at 50% 25%, rgba(255,255,255,.55), rgba(255,255,255,0)), conic-gradient(from 0deg, #8a8a8a, #3a3a3a, #9a9a9a, #2a2a2a, #8a8a8a); box-shadow: 0 0 0 2px #111, 0 4px 8px rgba(0,0,0,.7);">
+          <div style="position: absolute; inset: 0; {{vol.rot}}">
+            <span style="position: absolute; left: 50%; top: 4px; width: 4px; height: 14px; margin-left: -2px; border-radius: 2px; background: #8fc8ff;"></span>
+          </div>
+        </div>
+        <input type="range" min="0" max="100" value="{{vol.value}}" onChange="{{vol.set}}" aria-label="Volume" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0;">
+      </div>
+      <span style="font-size: 9px; font-weight: 800; letter-spacing: 1px; color: #b5bac4;">VOLUME  <span style="font-family: VT323, monospace; color: #c9d6e4;">{{vol.db}}</span></span>
+    </div>
+    <!-- toggles -->
+    <div style="position: absolute; left: 10px; right: 10px; top: 268px; display: flex; flex-direction: column; gap: 6px;">
+      <sc-for list="{{toggles}}" as="tg" hint-placeholder-count="4">
+        <button onClick="{{tg.click}}" aria-pressed="{{tg.pressed}}" style="height: 22px; border-radius: 11px; border: 0; padding: 0 0 0 8px; display: flex; align-items: center; gap: 8px; background: linear-gradient(180deg, rgba(255,255,255,.17) 0%, rgba(255,255,255,.02) 50%, transparent 50%), linear-gradient(180deg, #3e3e3e, #161616); box-shadow: 0 0 0 1px #0a0a0a, inset 0 1px 0 rgba(255,255,255,.15);">
+          <span style="width: 9px; height: 9px; border-radius: 50%; {{tg.led}}"></span>
+          <span style="font-size: 10px; font-weight: 700; letter-spacing: .5px; {{tg.text}}">{{tg.label}}</span>
+        </button>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- EQ -->
+  <div style="position: absolute; left: 96px; top: 460px; width: 380px; height: 116px; border-radius: 10px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.12);">
+    <div style="position: absolute; left: 12px; top: 7px; font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #c9ced7;">10-BAND EQ</div>
+    <button onClick="{{eqFlat}}" style="position: absolute; right: 10px; top: 5px; height: 16px; padding: 0 8px; border-radius: 8px; border: 0; font-size: 9px; font-weight: 700; color: #c9ced7; background: linear-gradient(180deg, #4a4a4a, #1c1c1c); box-shadow: 0 0 0 1px #0a0a0a;">FLAT</button>
+    <button onClick="{{eqSmile}}" style="position: absolute; right: 56px; top: 5px; height: 16px; padding: 0 8px; border-radius: 8px; border: 0; font-size: 9px; font-weight: 700; color: #c9ced7; background: linear-gradient(180deg, #4a4a4a, #1c1c1c); box-shadow: 0 0 0 1px #0a0a0a;">SMILE</button>
+    <button onClick="{{eqPhone}}" style="position: absolute; right: 110px; top: 5px; height: 16px; padding: 0 8px; border-radius: 8px; border: 0; font-size: 9px; font-weight: 700; color: #c9ced7; background: linear-gradient(180deg, #4a4a4a, #1c1c1c); box-shadow: 0 0 0 1px #0a0a0a;">PHONE</button>
+    <div style="position: absolute; left: 12px; right: 12px; top: 26px; bottom: 6px; display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 4px;">
+      <sc-for list="{{eq}}" as="b" hint-placeholder-count="10">
+        <div style="position: relative; display: flex; flex-direction: column; align-items: center;">
+          <div style="position: relative; width: 6px; height: 64px; border-radius: 3px; background: #050505; box-shadow: 0 0 0 1px #3a3a3a;">
+            <span style="position: absolute; left: -6px; right: -6px; top: 50%; height: 1px; background: rgba(255,255,255,.2);"></span>
+            <span style="position: absolute; left: 0; right: 0; border-radius: 3px; background: #6aa9e8; {{b.fill}}"></span>
+            <span style="position: absolute; left: -8px; width: 22px; height: 10px; margin-top: -5px; border-radius: 2px; background: linear-gradient(180deg, #d8d8d8, #5a5a5a); box-shadow: 0 1px 2px rgba(0,0,0,.7), inset 0 -2px 0 #6aa9e8; {{b.thumb}}"></span>
+            <input type="range" min="-12" max="12" step="1" value="{{b.value}}" onChange="{{b.set}}" aria-label="{{b.aria}}" style="position: absolute; left: -29px; top: 27px; width: 64px; height: 10px; margin: 0; opacity: 0; transform: rotate(-90deg);">
+          </div>
+          <span style="margin-top: 4px; font-family: VT323, monospace; font-size: 9px; color: #b5bac4;">{{b.label}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- FX rack -->
+  <div style="position: absolute; left: 486px; top: 460px; width: 544px; height: 116px; border-radius: 10px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.12);">
+    <div style="position: absolute; left: 12px; top: 7px; font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #c9ced7;">EFFECTS</div>
+    <div style="position: absolute; left: 10px; right: 10px; top: 24px; bottom: 8px; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px;">
+      <sc-for list="{{fx}}" as="f" hint-placeholder-count="6">
+        <div class="sw-mod" style="position: relative; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 5px 0 5px; {{f.look}}">
+          <button onClick="{{f.toggle}}" aria-pressed="{{f.on}}" style="display: flex; align-items: center; gap: 5px; border: 0; padding: 1px 6px; border-radius: 8px; background: rgba(0,0,0,.35);">
+            <span style="width: 8px; height: 8px; border-radius: 50%; {{f.led}}"></span>
+            <span style="font-size: 9px; font-weight: 800; letter-spacing: .5px; color: #fff;">{{f.name}}</span>
+          </button>
+          <div style="position: relative; width: 44px; height: 44px;">
+            <div style="position: absolute; inset: 0; border-radius: 50%; {{f.ring}} -webkit-mask: radial-gradient(circle, transparent 0 17px, #000 18px 21px, transparent 22px); mask: radial-gradient(circle, transparent 0 17px, #000 18px 21px, transparent 22px);"></div>
+            <div style="position: absolute; inset: 7px; border-radius: 50%; background: radial-gradient(ellipse 60% 40% at 50% 25%, rgba(255,255,255,.5), rgba(255,255,255,0)), linear-gradient(180deg, #6a6a6a, #1c1c1c); box-shadow: 0 0 0 1px #0a0a0a, 0 3px 5px rgba(0,0,0,.6);">
+              <div style="position: absolute; inset: 0; {{f.rot}}"><span style="position: absolute; left: 50%; top: 3px; width: 3px; height: 9px; margin-left: -1.5px; border-radius: 2px; background: #fff;"></span></div>
+            </div>
+            <input type="range" min="0" max="100" value="{{f.value}}" onChange="{{f.set}}" aria-label="{{f.aria}}" style="position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; margin: 0;">
+          </div>
+          <span style="font-family: VT323, monospace; font-size: 9px; color: #c9ced7;">{{f.readout}}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <!-- MIDI mapper -->
+  <div style="position: absolute; left: 14px; top: 586px; width: 1092px; height: 120px; border-radius: 12px; background: linear-gradient(180deg, #0a0a0a, #262626); box-shadow: inset 0 0 0 1px rgba(0,0,0,.7), 0 1px 0 rgba(255,255,255,.12);">
+    <div style="position: absolute; left: 14px; top: 8px; display: flex; gap: 16px; align-items: baseline;">
+      <span style="font-size: 11px; font-weight: 800; letter-spacing: 1px; color: #c9ced7;">MIDI MAPPER</span>
+      <span style="font-size: 10px; color: #f0a040;">CLICK: press a key or turn a knob to bind it</span>
+    </div>
+    <div style="position: absolute; left: 12px; right: 12px; top: 30px; bottom: 26px; display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 6px;">
+      <sc-for list="{{targets}}" as="t" hint-placeholder-count="13">
+        <button class="sw-mod" style="position: relative; border-radius: 8px; border: 0; padding: 0 8px; text-align: left; display: flex; flex-direction: column; justify-content: center; gap: 3px; {{t.look}}">
+          <span style="position: absolute; right: 6px; top: 6px; width: 7px; height: 7px; border-radius: 50%; {{t.led}}"></span>
+          <span style="font-size: 11px; font-weight: 800; color: #fff;">{{t.label}}</span>
+          <span style="font-family: VT323, monospace; font-size: 11px; color: #b8ff6a;">{{t.src}}</span>
+        </button>
+      </sc-for>
+    </div>
+    <!-- piano strip -->
+    <div style="position: absolute; left: 12px; right: 12px; bottom: 6px; height: 14px; display: flex; gap: 1px;" aria-hidden="true">
+      <sc-for list="{{keys}}" as="k" hint-placeholder-count="36">
+        <span style="flex: 1 1 0; border-radius: 0 0 2px 2px; {{k}}"></span>
+      </sc-for>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"screen":{"editor":"enum","options":["playing","no disc"],"default":"playing"},"$preview":{"width":1120,"height":720}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = {
+      tick: 0, audio: false, vol: 80, mega: true, crt: true, sync: true,
+      eq: [3, 2, 0, -1, 0, 1, 2, 3, 2, 1],
+      fx: { crush: [false, 55], wobble: [false, 40], ring: [false, 35], echo: [true, 35], space: [false, 45], gate: [false, 70] },
+      xy: { x: 0.7, y: 0.3, active: false },
+    };
+    this.bars = new Array(32).fill(0); this.peaks = new Array(32).fill(0); this.hold = new Array(32).fill(0);
+    this.vuL = 0; this.vuR = 0; this.trail = []; this.scopeBuf = new Array(140).fill(0);
+    this.lastHits = { p1: -9, p2: -9, wv: -9, ns: -9, kick: -9 }; this.lastNote = { n: 0, t: -9 };
+    this.t0 = performance.now(); this.lastFrame = 0;
+  }
+
+  componentDidMount() {
+    const loop = (now) => {
+      this.raf = requestAnimationFrame(loop);
+      if (now - this.lastFrame < 33) return;
+      const dt = Math.min(0.1, (now - this.lastFrame) / 1000); this.lastFrame = now;
+      this.analyse(dt);
+      this.setState({ tick: this.state.tick + 1 });
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+
+  componentWillUnmount() { cancelAnimationFrame(this.raf); this.stopAudio(); }
+
+  // ---------- the demo chiptune and the FX chain ----------
+  get bpm() { return 140; }
+  get step() { return 60 / this.bpm / 4; }
+
+  startAudio() {
+    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
+    const ctx = this.ctx = new AC();
+    const g = (v) => { const n = ctx.createGain(); n.gain.value = v; return n; };
+    const bq = (type, f, q, gain) => { const n = ctx.createBiquadFilter(); n.type = type; n.frequency.value = f; n.Q.value = q || 0.7; if (gain !== undefined) n.gain.value = gain; return n; };
+    this.ch = { p1: g(0.16), p2: g(0.09), wv: g(0.3), ns: g(0.32) };
+    const mix = g(1); Object.values(this.ch).forEach((c) => c.connect(mix));
+    // EQ
+    this.eqNodes = [31, 62, 125, 250, 500, 1000, 2000, 4000, 8000, 16000].map((f, i) => bq('peaking', f, 1.3, this.state.eq[i]));
+    let node = mix; this.eqNodes.forEach((n) => { node.connect(n); node = n; });
+    this.megaNode = bq('lowshelf', 110, 0.7, this.state.mega ? 12 : 0); node.connect(this.megaNode); node = this.megaNode;
+    // insert helper: dry + wet into one output
+    const insert = (src, fxIn, fxOut) => { const dry = g(1), wet = g(0), out = g(1); src.connect(dry); dry.connect(out); src.connect(fxIn); fxOut.connect(wet); wet.connect(out); return { dry, wet, out }; };
+    // CRUSH: bits + sample-and-hold
+    const sp = ctx.createScriptProcessor(1024, 2, 2); let hold = [0, 0], cnt = 0;
+    sp.onaudioprocess = (e) => {
+      const a = this.state.fx.crush[1] / 100; const bits = Math.max(2, Math.round(12 - a * 10)); const step = Math.pow(2, bits - 1); const every = 1 + Math.floor(a * 24);
+      for (let c = 0; c < 2; c++) { const i = e.inputBuffer.getChannelData(c), o = e.outputBuffer.getChannelData(c); let k = cnt;
+        for (let s = 0; s < i.length; s++) { if (k % every === 0) hold[c] = Math.round(i[s] * step) / step; o[s] = hold[c]; k++; } }
+      cnt += e.inputBuffer.length;
+    };
+    this.crush = insert(node, sp, sp); node = this.crush.out;
+    // WOBBLE: tape wow/flutter
+    const wd = ctx.createDelay(0.1); wd.delayTime.value = 0.02; const lfo = ctx.createOscillator(); lfo.frequency.value = 3; this.wobbleDepth = g(0.004); lfo.connect(this.wobbleDepth); this.wobbleDepth.connect(wd.delayTime); lfo.start(); this.wobbleLfo = lfo;
+    this.wobble = insert(node, wd, wd); node = this.wobble.out;
+    // RING MOD
+    const ringAmp = g(0); const carrier = ctx.createOscillator(); carrier.type = 'sine'; carrier.frequency.value = 300; carrier.connect(ringAmp.gain); carrier.start(); this.ringOsc = carrier;
+    this.ring = insert(node, ringAmp, ringAmp); node = this.ring.out;
+    // PAD filter
+    this.padFilter = bq('lowpass', 20000, 0.7); node.connect(this.padFilter); node = this.padFilter;
+    // GATE
+    this.gateNode = g(1); node.connect(this.gateNode); node = this.gateNode;
+    // ECHO + SPACE sends
+    const out = g(1); node.connect(out);
+    const ed = ctx.createDelay(2); ed.delayTime.value = this.step * 3; this.echoFb = g(0.4); this.echoWet = g(0); node.connect(ed); ed.connect(this.echoFb); this.echoFb.connect(ed); ed.connect(this.echoWet); this.echoWet.connect(out);
+    const conv = ctx.createConvolver(); const len = ctx.sampleRate * 2.8; const ir = ctx.createBuffer(2, len, ctx.sampleRate);
+    for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 3); }
+    conv.buffer = ir; this.spaceWet = g(0); node.connect(conv); conv.connect(this.spaceWet); this.spaceWet.connect(out);
+    this.master = g(this.state.vol / 100); out.connect(this.master);
+    this.an = ctx.createAnalyser(); this.an.fftSize = 2048; this.an.smoothingTimeConstant = 0.55; this.master.connect(this.an); this.an.connect(ctx.destination);
+    this.freq = new Uint8Array(this.an.frequencyBinCount); this.wave = new Uint8Array(this.an.fftSize);
+    this.noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate); const nd = this.noise.getChannelData(0); for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    this.applyFx();
+    this.nextTime = ctx.currentTime + 0.08; this.stepIdx = 0; this.startedAt = ctx.currentTime;
+    this.timer = setInterval(() => this.schedule(), 25);
+  }
+
+  stopAudio() { clearInterval(this.timer); if (this.ctx) { this.ctx.close(); this.ctx = null; } }
+
+  applyFx() {
+    if (!this.ctx) return; const s = this.state, t = this.ctx.currentTime;
+    const set = (p, v) => p.setTargetAtTime(v, t, 0.03);
+    s.eq.forEach((v, i) => set(this.eqNodes[i].gain, v));
+    set(this.megaNode.gain, s.mega ? 12 : 0);
+    const io = (ins, on, wet) => { set(ins.dry.gain, on ? 1 - wet * 0.9 : 1); set(ins.wet.gain, on ? wet : 0); };
+    const [cOn] = s.fx.crush; io(this.crush, cOn, 1);
+    const [wOn, wA] = s.fx.wobble; io(this.wobble, wOn, 1); set(this.wobbleDepth.gain, 0.001 + wA / 100 * 0.009); set(this.wobbleLfo.frequency, 0.6 + wA / 100 * 7);
+    const [rOn, rA] = s.fx.ring; io(this.ring, rOn, 1); set(this.ringOsc.frequency, 30 + Math.pow(rA / 100, 2) * 1400);
+    const [eOn, eA] = s.fx.echo; set(this.echoWet.gain, eOn ? 0.15 + eA / 100 * 0.5 : 0); set(this.echoFb.gain, eOn ? 0.2 + eA / 100 * 0.62 : 0);
+    const [sOn, sA] = s.fx.space; set(this.spaceWet.gain, sOn ? sA / 100 * 0.9 : 0);
+    const xy = s.xy; set(this.padFilter.frequency, xy.active ? 80 * Math.pow(2, xy.x * 8) : 20000); set(this.padFilter.Q, xy.active ? 0.7 + xy.y * 22 : 0.7);
+    set(this.master.gain, s.vol / 100);
+  }
+
+  schedule() {
+    const ctx = this.ctx; if (!ctx) return;
+    const lead = [69,0,72,0,76,74,72,0, 69,0,67,0,64,0,67,69, 72,0,74,0,76,0,79,77, 76,74,72,0,74,0,0,0];
+    const chords = [[57,60,64],[53,57,60],[48,52,55],[55,59,62]];
+    const bass = [45, 41, 48, 43];
+    while (this.nextTime < ctx.currentTime + 0.12) {
+      const i = this.stepIdx % 32, t = this.nextTime, st = this.step, bar = Math.floor(i / 8);
+      const note = (dest, type, midi, len, vol, key) => {
+        const o = ctx.createOscillator(); o.type = type; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+        const e = ctx.createGain(); e.gain.setValueAtTime(0, t); e.gain.linearRampToValueAtTime(vol, t + 0.004); e.gain.exponentialRampToValueAtTime(0.001, t + len);
+        o.connect(e); e.connect(dest); o.start(t); o.stop(t + len + 0.02); this.lastHits[key] = t;
+      };
+      if (lead[i]) { note(this.ch.p1, 'square', lead[i], st * 1.8, 1, 'p1'); this.lastNote = { n: lead[i], t }; }
+      note(this.ch.p2, 'square', chords[bar][i % 3] + 12, st * 0.7, 0.7, 'p2');
+      if (i % 2 === 0) note(this.ch.wv, 'triangle', bass[bar] + (i % 4 === 2 ? 12 : 0), st * 1.6, 1, 'wv');
+      if (i % 8 === 0 || i === 22) { const o = ctx.createOscillator(); o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(40, t + 0.15); const e = ctx.createGain(); e.gain.setValueAtTime(1, t); e.gain.exponentialRampToValueAtTime(0.001, t + 0.22); o.connect(e); e.connect(this.ch.ns); o.start(t); o.stop(t + 0.25); this.lastHits.kick = t; this.lastHits.ns = t; }
+      if (i % 8 === 4) this.hit(t, 0.18, 1800, 1); else if (i % 2 === 1) this.hit(t, 0.04, 7000, 0.35);
+      // trance gate pattern
+      const [gOn, gA] = this.state.fx.gate; const pat = [1,0,1,1,0,1,0,1,1,0,1,0,1,1,0,1];
+      this.gateNode.gain.setValueAtTime(gOn && !pat[i % 16] ? 1 - gA / 100 : 1, t);
+      this.nextTime += st; this.stepIdx++;
+    }
+  }
+
+  hit(t, len, hp, vol) {
+    const ctx = this.ctx, s = ctx.createBufferSource(); s.buffer = this.noise; const f = ctx.createBiquadFilter(); f.type = 'highpass'; f.frequency.value = hp;
+    const e = ctx.createGain(); e.gain.setValueAtTime(vol, t); e.gain.exponentialRampToValueAtTime(0.001, t + len);
+    s.connect(f); f.connect(e); e.connect(this.ch.ns); s.start(t, Math.random() * 0.5); s.stop(t + len + 0.02); this.lastHits.ns = t;
+  }
+
+  // ---------- analysis (real FFT when the demo plays, a fake signal otherwise) ----------
+  now() { return this.ctx ? this.ctx.currentTime : (performance.now() - this.t0) / 1000; }
+  env(key, rate) { const d = this.now() - this.lastHits[key]; return d >= 0 && d < 4 ? Math.exp(-d * rate) : 0; }
+
+  analyse(dt) {
+    const N = 32; let levels = new Array(N).fill(0), wave = new Array(140).fill(0), rms = 0;
+    if (this.ctx && this.an) {
+      this.an.getByteFrequencyData(this.freq); this.an.getByteTimeDomainData(this.wave);
+      const bins = this.freq.length;
+      for (let b = 0; b < N; b++) { const lo = Math.max(1, Math.floor(Math.pow(bins * 0.75, b / N))), hi = Math.max(lo + 1, Math.floor(Math.pow(bins * 0.75, (b + 1) / N)));
+        let s = 0; for (let k = lo; k < hi; k++) s += this.freq[k]; levels[b] = Math.min(1, (s / (hi - lo)) / 255 * (0.85 + b / N * 0.5)); }
+      // trigger on a rising zero crossing so the scope stands still
+      let start = 0; for (let k = 1; k < 600; k++) if (this.wave[k - 1] < 128 && this.wave[k] >= 128) { start = k; break; }
+      for (let k = 0; k < 140; k++) { const v = (this.wave[start + k * 3] - 128) / 128; wave[k] = v; }
+      for (let k = 0; k < 1024; k++) { const v = (this.wave[k] - 128) / 128; rms += v * v; } rms = Math.sqrt(rms / 1024);
+    } else {
+      const t = this.now(), beat = (t * this.bpm / 60) % 1, kick = Math.exp(-beat * 9);
+      for (let b = 0; b < N; b++) levels[b] = Math.max(0, Math.min(1, 0.25 + 0.3 * Math.sin(t * 2.3 + b * 0.45) * Math.cos(t * 1.1 - b * 0.2) + (b < 6 ? kick * 0.6 : 0) + Math.random() * 0.12 - b * 0.006));
+      for (let k = 0; k < 140; k++) wave[k] = 0.45 * Math.sin(k * 0.32 + t * 6) * (0.6 + 0.4 * Math.sin(k * 0.05 + t)) + 0.15 * Math.sign(Math.sin(k * 0.9 + t * 3)) + kick * 0.25 * Math.sin(k * 0.08);
+      rms = 0.18 + kick * 0.25; this.lastHits.kick = t - beat * 60 / this.bpm;
+      for (const [k, off] of [['p1', 0.5], ['p2', 0.25], ['wv', 0], ['ns', 0]]) this.lastHits[k] = t - ((t * this.bpm / 60 * 2 + off) % 1) * 30 / this.bpm;
+      const step = Math.floor(t / this.step); const fake = [69, 72, 76, 74, 72, 67, 64, 71]; if (step % 2 === 0) this.lastNote = { n: fake[(step / 2) % 8], t: step * this.step };
+    }
+    for (let b = 0; b < N; b++) {
+      this.bars[b] = Math.max(levels[b], this.bars[b] - dt * 2.2);
+      if (this.bars[b] >= this.peaks[b]) { this.peaks[b] = this.bars[b]; this.hold[b] = 0.4; } else if ((this.hold[b] -= dt) < 0) this.peaks[b] = Math.max(0, this.peaks[b] - dt * 0.6);
+    }
+    this.scopeBuf = wave;
+    const target = Math.min(1, rms * 3.2);
+    this.vuL += (target * (0.95 + Math.random() * 0.1) - this.vuL) * Math.min(1, dt * 9);
+    this.vuR += (target * (0.9 + Math.random() * 0.15) - this.vuR) * Math.min(1, dt * 8);
+    this.bass = levels.slice(0, 5).reduce((a, b) => a + b, 0) / 5;
+  }
+
+  // ---------- template values ----------
+  renderVals() {
+    const s = this.state, playing = (this.props.screen ?? 'playing') === 'playing';
+    const kick = this.env('kick', 7), bass = this.bass || 0;
+    const set = (patch) => this.setState(patch, () => this.applyFx());
+    const fmt = (n) => String(n).padStart(2, '0');
+    const secs = Math.floor(this.ctx ? this.ctx.currentTime - (this.startedAt || 0) : 102);
+        const led = (c, on) => on ? `background: radial-gradient(circle at 35% 30%, #fff 0 15%, ${c} 35%, ${c}88 100%); box-shadow: 0 0 7px ${c};` : 'background: #1c2a1f; box-shadow: inset 0 0 0 1px rgba(0,0,0,.6);';
+
+    const bars = this.bars.map((v, b) => ({ h: `height: ${(v * 100).toFixed(1)}%;`, pk: `bottom: calc(${(this.peaks[b] * 100).toFixed(1)}% - 2px);`, r: `height: ${(v * 100).toFixed(1)}%;` }));
+    const scope = this.scopeBuf.map((v, i) => `${(i * 3).toFixed(0)},${(23 - v * 19).toFixed(1)}`).join(' ');
+    const vuAngle = (v) => { const db = 20 * Math.log10(Math.max(v, 0.01)); return Math.max(-50, Math.min(52, -50 + (db + 20) / 23 * 100)); };
+    const vu = [['L', this.vuL], ['R', this.vuR]].map(([name, v]) => ({ name, aria: `VU meter ${name}`, needle: `transform: rotate(${vuAngle(v).toFixed(1)}deg);`, clip: led('#ff3b3b', v > 0.85) }));
+
+    const chans = [['P1', 'p1', '#b8ff6a'], ['P2', 'p2', '#b8ff6a'], ['WV', 'wv', '#b8ff6a'], ['NS', 'ns', '#b8ff6a']].map(([name, key, c]) => { const e = this.env(key, 6); return { name, led: led(c, e > 0.3), bar: `width: ${(e * 100).toFixed(0)}%;` }; });
+
+    const woofScale = (1 + kick * 0.14 + bass * 0.05).toFixed(3);
+    const speakers = [
+      { pos: 'left: 16px;', name: 'LEFT', woof: `transform: scale(${woofScale});`, tweeter: `transform: scale(${(1 + this.env('ns', 12) * 0.25).toFixed(3)});` },
+      { pos: 'right: 16px;', name: 'RIGHT', woof: `transform: scale(${woofScale});`, tweeter: `transform: scale(${(1 + this.env('ns', 12) * 0.25).toFixed(3)});` },
+    ];
+
+
+    const keyTarget = { 0: 'LEFT', 2: 'DOWN', 3: 'UP', 4: 'RIGHT', 5: 'SELECT', 7: 'START', 9: 'B / Z', 11: 'A / X' };
+    const noteOn = this.now() - this.lastNote.t < this.step * 1.6 && this.now() >= this.lastNote.t;
+    const heldLabel = noteOn ? keyTarget[this.lastNote.n % 12] : null;
+    const names = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+    const map = [['UP', 'D#4'], ['DOWN', 'D4'], ['LEFT', 'C4'], ['RIGHT', 'E4'], ['A / X', 'B4'], ['B / Z', 'A4'], ['START', 'G4'], ['SELECT', 'F4'], ['SPACE', 'C5'], ['C', 'D5'], ['MOUSE X', 'CC 1'], ['MOUSE Y', 'CC 2'], ['CLICK', 'CC 64']];
+    const blink = Math.floor(this.now() * 4) % 2 === 0;
+    const gloss = 'linear-gradient(180deg, rgba(255,255,255,.2) 0%, rgba(255,255,255,.03) 50%, transparent 50%)';
+    const targets = map.map(([label, src]) => {
+      const held = label === heldLabel, learn = label === 'CLICK';
+      return { label, src,
+        look: held ? `background: ${gloss}, linear-gradient(180deg, #3d7fc0, #173a5e); box-shadow: inset 0 0 0 1px #0a2233, inset 0 2px 3px rgba(0,0,0,.5); transform: translateY(1px);`
+          : learn ? `background: ${gloss}, linear-gradient(180deg, #4e4e4e, #202020); box-shadow: inset 0 0 0 1.5px ${blink ? '#ff9a1f' : '#5a3a10'};`
+          : `background: ${gloss}, linear-gradient(180deg, #4e4e4e, #202020); box-shadow: inset 0 0 0 1px #141414;`,
+        led: held ? led('#6bff7a', true) : learn ? led('#ff9a1f', blink) : led('#6bff7a', false) };
+    });
+    const keys = Array.from({ length: 36 }, (_, i) => { const n = 48 + i, black = [1, 3, 6, 8, 10].includes(n % 12), on = noteOn && n === this.lastNote.n;
+      return on ? 'background: #6aa9e8;' : black ? 'background: #111; box-shadow: inset 0 0 0 1px #333;' : 'background: linear-gradient(180deg, #e8e8e8, #b8b8b8);'; });
+
+    const transport = [
+      { label: 'EJECT', aria: 'Eject: load a SWF', isEject: true, click: () => {} },
+      { label: s.audio ? 'PAUSE' : 'PLAY', aria: s.audio ? 'Pause the demo song' : 'Play the demo song with sound', isPlay: !s.audio, isPause: s.audio, click: () => { if (s.audio) { this.stopAudio(); this.setState({ audio: false }); } else { this.startAudio(); this.setState({ audio: true }); } } },
+      { label: 'STOP', aria: 'Stop', isStop: true, click: () => { this.stopAudio(); this.setState({ audio: false }); } },
+      { label: 'RESET', aria: 'Reset', isReset: true, click: () => {} },
+    ].map((b) => ({ isEject: false, isPlay: false, isPause: false, isStop: false, isReset: false, ...b,
+      ring: 'color: #e1e1e1; box-shadow: 0 0 0 2px #262626, 0 0 0 3px #a0a0a0, 0 3px 6px rgba(0,0,0,.6);' }));
+
+    const knobRing = (v, c) => `background: conic-gradient(from -135deg, ${c} 0deg ${(v * 270).toFixed(0)}deg, #1a1a1a ${(v * 270).toFixed(0)}deg 270deg, transparent 270deg);`;
+    const vol = { value: s.vol, ring: knobRing(s.vol / 100, '#6aa9e8'), rot: `transform: rotate(${(-135 + s.vol / 100 * 270).toFixed(0)}deg);`, db: s.vol === 0 ? '-inf' : `${(20 * Math.log10(s.vol / 100)).toFixed(1)}dB`, set: (e) => set({ vol: +e.target.value }) };
+
+    const toggles = [['SYNC TO DAW', 'sync', '#6bff7a'], ['MEGA BASS', 'mega', '#6bff7a'], ['CRT FX', 'crt', '#6bff7a'], ['GAME BOY', null, '#6bff7a']].map(([label, key, c]) => {
+      const on = key ? s[key] : playing;
+      return { label, pressed: on ? 'true' : 'false', led: led(c, on), text: on ? 'color: #fff;' : 'color: #9399a6;', click: () => key && set({ [key]: !s[key] }) };
+    });
+
+    const eqLabels = ['31', '62', '125', '250', '500', '1k', '2k', '4k', '8k', '16k'];
+    const eq = s.eq.map((v, i) => { const pos = 50 - v / 12 * 50;
+      return { label: eqLabels[i], value: v, aria: `EQ ${eqLabels[i]} Hz`, thumb: `top: ${pos}%;`, fill: v >= 0 ? `top: ${pos}%; bottom: 50%;` : `top: 50%; bottom: ${100 - pos}%;`,
+        set: (e) => { const eqn = s.eq.slice(); eqn[i] = +e.target.value; set({ eq: eqn }); } }; });
+
+    const fxDefs = [
+      ['crush', 'BITCRUSH', '#6aa9e8', (a) => `${Math.max(2, Math.round(12 - a * 10))}-bit / ${Math.round(48 / (1 + Math.floor(a * 24)))}k`],
+      ['wobble', 'TAPE WOBBLE', '#6aa9e8', (a) => `${(0.6 + a * 7).toFixed(1)} Hz`],
+      ['ring', 'RING MOD', '#6aa9e8', (a) => `${Math.round(30 + a * a * 1400)} Hz`],
+      ['gate', 'TRANCE GATE', '#6aa9e8', (a) => `1/16  ${Math.round(a * 100)}%`],
+      ['echo', 'ECHO 3/16', '#6aa9e8', (a) => `fb ${Math.round(20 + a * 62)}%`],
+      ['space', 'SPACE', '#6aa9e8', (a) => `${Math.round(a * 100)}% wet`],
+    ];
+    const fx = fxDefs.map(([key, name, c]) => { const [on, amt] = s.fx[key]; const a = amt / 100; const def = fxDefs.find((d) => d[0] === key);
+      return { name, on: on ? 'true' : 'false', value: amt, aria: `${name} amount`, readout: def[3](a), led: led('#6bff7a', on), ring: knobRing(a, on ? c : '#555'),
+        rot: `transform: rotate(${(-135 + a * 270).toFixed(0)}deg);`,
+        look: on ? 'background: linear-gradient(180deg, #2c3a4a, #141a22); box-shadow: inset 0 0 0 1px #3d5a78;' : 'background: linear-gradient(180deg, #2a2a2a, #141414); box-shadow: inset 0 0 0 1px #000;',
+        toggle: () => set({ fx: { ...s.fx, [key]: [!on, amt] } }), set: (e) => set({ fx: { ...s.fx, [key]: [on, +e.target.value] } }) }; });
+
+    const padAt = (e) => { const r = e.currentTarget.getBoundingClientRect(); return { x: Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)), y: Math.max(0, Math.min(1, 1 - (e.clientY - r.top) / r.height)) }; };
+    if (s.xy.active) { this.trail.push([s.xy.x, s.xy.y]); if (this.trail.length > 14) this.trail.shift(); } else if (this.trail.length) this.trail.shift();
+    const xy = {
+      readout: s.xy.active ? `${Math.round(80 * Math.pow(2, s.xy.x * 8))}Hz Q${(0.7 + s.xy.y * 22).toFixed(1)}` : 'BYPASS',
+      dot: `left: ${(s.xy.x * 100).toFixed(1)}%; top: ${((1 - s.xy.y) * 100).toFixed(1)}%; opacity: ${s.xy.active ? 1 : 0.45};`,
+      trail: this.trail.map(([x, y], i) => `left: ${(x * 100).toFixed(1)}%; top: ${((1 - y) * 100).toFixed(1)}%; width: ${4 + i * 0.6}px; height: ${4 + i * 0.6}px; margin: -${2 + i * 0.3}px; opacity: ${(i / this.trail.length * 0.6).toFixed(2)};`),
+      down: (e) => { e.currentTarget.setPointerCapture && e.currentTarget.setPointerCapture(e.pointerId); set({ xy: { ...padAt(e), active: true } }); },
+      move: (e) => { if (this.state.xy.active) set({ xy: { ...padAt(e), active: true } }); },
+      up: () => { if (this.state.xy.active) set({ xy: { ...this.state.xy, active: false } }); },
+    };
+
+    const lcdModes = s.audio ? 'PLAY' : 'DEMO';
+    const lcd = {
+      time: `${fmt(Math.floor(secs / 60) % 100)}:${fmt(secs % 60)}`,
+      fps: playing ? '60 fps' : '-- fps', bpm: `${this.bpm} bpm`, mode: lcdModes,
+      midi: noteOn ? `MIDI ${names[this.lastNote.n % 12]}${Math.floor(this.lastNote.n / 12) - 1}` : 'MIDI --',
+      ticker: s.audio ? `1. Burg Media - Demo Tune (${fmt(Math.floor(secs / 60))}:${fmt(secs % 60)})  ***` : playing ? '1. tobu-tobu-girl-deluxe.swf (gb2swf)  ***' : 'swf2DAW - no file loaded  ***',
+    };
+
+    const screws = [['left: 14px; top: 14px;', '30deg'], ['right: 14px; top: 14px;', '-20deg'], ['left: 14px; bottom: 14px;', '75deg'], ['right: 14px; bottom: 14px;', '10deg']].map(([pos, rot]) => ({ pos, rot }));
+
+    return {
+      playing, noDisc: !playing, crt: s.crt, bars, scope, vu, chans, speakers, targets, keys, transport, vol, toggles, eq, fx, xy, lcd, screws,
+      game: { hop: `transform: translateY(${(-kick * 30).toFixed(1)}px);`, score: String(4250 + Math.floor(this.now() * 10) * 10).padStart(6, '0') },
+      eqFlat: () => set({ eq: new Array(10).fill(0) }),
+      eqSmile: () => set({ eq: [9, 7, 4, 0, -3, -3, 0, 4, 7, 9] }),
+      eqPhone: () => set({ eq: [-12, -12, -10, -2, 6, 9, 6, -6, -12, -12] }),
+    };
+  }
+}
+</script>
+</body>
+</html>
